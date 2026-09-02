@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Deteksi Lesi Mulut - TFLite</title>
+    <!-- Memuat TensorFlow.js dan modul TFLite -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-tflite"></script>
+</head>
+<body>
+    <h2>Uji Coba Deteksi Lesi (TFLite)</h2>
+    <input type="file" id="imageLoader" accept="image/*"><br><br>
+    <canvas id="canvas" style="max-width: 500px; display:block;"></canvas>
+    <p id="result">Silakan unggah gambar radiograf atau klinis.</p>
+
+    <script src="script.js"></script>
+</body>
+</html>
