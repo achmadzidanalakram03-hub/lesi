@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <title>Deteksi Lesi Mulut - TFLite</title>
-    <!-- Memuat TensorFlow.js dan modul TFLite -->
+    <!-- Memuat TensorFlow.js -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-tflite"></script>
+    <!-- Memuat TensorFlow.js TFLite -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-tflite@0.0.1-alpha.9/dist/tf-tflite.min.js"></script>
 </head>
 <body>
     <h2>Uji Coba Deteksi Lesi (TFLite)</h2>
     <input type="file" id="imageLoader" accept="image/*"><br><br>
-    <canvas id="canvas" style="max-width: 500px; display:block;"></canvas>
-    <p id="result">Silakan unggah gambar radiograf atau klinis.</p>
+    <canvas id="canvas" style="max-width: 400px; display:block;"></canvas>
+    <p id="result">Menyiapkan sistem...</p>
 
     <script src="script.js"></script>
 </body>
