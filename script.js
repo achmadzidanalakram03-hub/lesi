@@ -3,8 +3,11 @@ let model;
 async function loadModel() {
     document.getElementById('result').innerText = "Memuat model TFLite...";
     try {
-        // Memuat model dari repositori
-        model = await tflite.loadModel('./best.tflite');
+        // Mengatur jalur WASM agar modul TFLite berjalan sempurna di browser
+        tflite.setWasmPath('https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-tflite@0.0.1-alpha.9/dist/');
+        
+        // Memuat model .tflite
+        model = await tflite.loadTFLiteModel('./best.tflite');
         document.getElementById('result').innerText = "Model berhasil dimuat! Silakan unggah gambar.";
     } catch (error) {
         console.error(error);
@@ -28,7 +31,7 @@ imageLoader.addEventListener('change', async (e) => {
 
             document.getElementById('result').innerText = "Memproses gambar...";
             
-            // Pra-pemrosesan tensor (sesuaikan input ukuran model YOLO, misal 640x640)
+            // Pra-pemrosesan tensor (ukuran input YOLO 640x640)
             let tensor = tf.browser.fromPixels(img)
                 .resizeNearestNeighbor([640, 640])
                 .toFloat()
@@ -36,7 +39,7 @@ imageLoader.addEventListener('change', async (e) => {
                 .expandDims(0);
 
             if (model) {
-                const predictions = await model.predict(tensor);
+                const predictions = model.predict(tensor);
                 document.getElementById('result').innerText = "Deteksi selesai! Cek konsol browser untuk detail.";
                 console.log(predictions);
             }
