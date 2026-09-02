@@ -5,8 +5,8 @@
     <title>Deteksi Lesi Mulut - TFLite</title>
     <!-- Memuat TensorFlow.js -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-    <!-- Memuat TensorFlow.js TFLite -->
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-tflite@0.0.1-alpha.9/dist/tf-tflite.min.js"></script>
+    <!-- Memuat TFLite Plugin untuk TensorFlow.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-tflite@0.0.1-alpha.8/dist/tf-tflite.min.js"></script>
 </head>
 <body>
     <h2>Uji Coba Deteksi Lesi (TFLite)</h2>
@@ -14,6 +14,7 @@
     <canvas id="canvas" style="max-width: 400px; display:block;"></canvas>
     <p id="result">Menyiapkan sistem...</p>
 
+    <!-- Menghubungkan skrip logika -->
     <script src="script.js"></script>
 </body>
 </html>
