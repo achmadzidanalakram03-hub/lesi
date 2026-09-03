@@ -3,97 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Deteksi Lesi Mulut (YOLOv8)</title>
+    <title>Oral Lesion AI - Clinical Dashboard</title>
     <!-- TensorFlow.js & TFLite -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-tflite@0.0.1-alpha.9/dist/tf-tflite.min.js"></script>
     <style>
         :root {
-            --primary: #2b3a4a;
-            --accent: #e76f51;
-            --bg-color: #f4f7f6;
-            --text-dark: #333;
-            --text-light: #fff;
+            --primary: #1e293b;
+            --accent: #3b82f6;
+            --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            --success: #10b981;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-dark); display: flex; flex-direction: column; min-height: 100vh; }
-        
-        /* Main Container */
-        .main-content { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; }
-        .card { background: var(--text-light); padding: 30px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.05); width: 100%; max-width: 800px; text-align: center; }
-        .card h2 { margin-bottom: 20px; color: var(--primary); font-weight: 600; }
-        
-        /* Upload Area */
-        .upload-btn-wrapper { position: relative; overflow: hidden; display: inline-block; margin-bottom: 20px; }
-        .btn-upload { border: none; background-color: var(--accent); color: white; padding: 12px 24px; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .btn-upload:hover { background-color: #d65a3d; }
-        .upload-btn-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; }
-        
-        /* Canvas & Status */
-        #status-text { font-size: 15px; color: #666; margin-bottom: 20px; font-weight: 500; }
-        .canvas-container { position: relative; width: 100%; max-width: 640px; margin: 0 auto; border-radius: 8px; overflow: hidden; background: #eef2f5; }
-        canvas { display: block; width: 100%; height: auto; object-fit: contain; }
 
-        /* Modern Dark Footer */
-        .site-footer { background-color: #1e2327; color: #a0a5aa; padding: 60px 0 20px; font-size: 14px; }
-        .footer-grid { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; padding: 0 20px; border-bottom: 1px solid #333; padding-bottom: 40px; margin-bottom: 20px; }
-        .footer-col h4 { color: var(--text-light); margin-bottom: 15px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
-        .footer-col ul { list-style: none; }
-        .footer-col ul li { margin-bottom: 10px; }
-        .footer-col ul li a { color: #a0a5aa; text-decoration: none; transition: 0.2s; }
-        .footer-col ul li a:hover { color: var(--accent); }
-        .footer-bottom { text-align: center; color: #777; }
-        .footer-logo { font-size: 24px; font-weight: bold; color: var(--text-light); margin-bottom: 15px; display: block; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; }
+
+        /* Top Navbar */
+        .navbar { background: var(--card-bg); border-bottom: 1px solid var(--border-color); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .nav-brand { font-weight: 700; font-size: 20px; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+        .nav-brand span { background: var(--accent-gradient); color: white; padding: 4px 10px; border-radius: 6px; font-size: 14px; }
+        .nav-links { display: flex; gap: 20px; list-style: none; }
+        .nav-links a { text-decoration: none; color: var(--text-muted); font-weight: 500; padding: 6px 12px; border-radius: 6px; transition: 0.2s; }
+        .nav-links a.active, .nav-links a:hover { background: #eff6ff; color: var(--accent); }
+        .user-profile { display: flex; align-items: center; gap: 10px; font-weight: 500; font-size: 14px; }
+        .user-avatar { width: 36px; height: 36px; background: #cbd5e1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #475569; }
+
+        /* Dashboard Container */
+        .dashboard-container { max-width: 1400px; margin: 0 auto; padding: 30px; width: 100%; display: flex; flex-direction: column; gap: 24px; flex: 1; }
+
+        /* Top Stats Grid */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .stat-card { background: var(--card-bg); padding: 24px; border-radius: 16px; border: 1px solid var(--border-color); box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+        .stat-header { display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); font-size: 14px; font-weight: 500; margin-bottom: 10px; }
+        .stat-value { font-size: 28px; font-weight: 700; color: var(--primary); }
+        .stat-badge { font-size: 12px; font-weight: 600; padding: 4px 8px; border-radius: 20px; display: inline-block; margin-top: 8px; }
+        .badge-success { background: #d1fae5; color: #065f46; }
+
+        /* Main Workspace Grid */
+        .workspace-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; }
+        @media(max-width: 1024px) { .workspace-grid { grid-template-columns: 1fr; } }
+
+        .card { background: var(--card-bg); padding: 24px; border-radius: 16px; border: 1px solid var(--border-color); box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+        .card-title { font-size: 18px; font-weight: 600; color: var(--primary); margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+
+        /* Upload & Preview Section */
+        .upload-zone { border: 2px dashed var(--border-color); border-radius: 12px; padding: 30px; text-align: center; background: #fafafa; position: relative; cursor: pointer; transition: 0.2s; margin-bottom: 20px; }
+        .upload-zone:hover { border-color: var(--accent); background: #f0fdf4; }
+        .upload-zone input { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+        .btn-main { background: var(--accent-gradient); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(59,130,246,0.3); }
+        
+        .canvas-wrapper { position: relative; width: 100%; background: #0f172a; border-radius: 12px; overflow: hidden; display: flex; justify-content: center; align-items: center; min-height: 300px; }
+        canvas { max-width: 100%; height: auto; display: block; }
+
+        /* Realtime Process Logs & Stats */
+        .process-logs { display: flex; flex-direction: column; gap: 12px; }
+        .log-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #f8fafc; border-radius: 8px; border: 1px solid var(--border-color); font-size: 14px; }
+        .log-label { color: var(--text-muted); font-weight: 500; }
+        .log-value { font-weight: 600; color: var(--primary); }
+
+        /* Table Section */
+        .history-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .history-table th, .history-table td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--border-color); font-size: 14px; }
+        .history-table th { color: var(--text-muted); font-weight: 600; background: #f8fafc; }
+        .status-badge { padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+        .status-detected { background: #dbeafe; color: #1e40af; }
+
+        /* Footer */
+        .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 13px; border-top: 1px solid var(--border-color); background: var(--card-bg); margin-top: auto; }
     </style>
 </head>
 <body>
 
-    <div class="main-content">
-        <div class="card">
-            <h2>Analisis Citra Lesi Mulut</h2>
-            <p id="status-text">Sistem sedang disiapkan...</p>
-            
-            <div class="upload-btn-wrapper">
-                <button class="btn-upload">Unggah Radiograf / Foto</button>
-                <input type="file" id="imageLoader" accept="image/*" />
-            </div>
+    <!-- Top Navbar -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            OralAI <span>Pro v2.0</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#" class="active">Dashboard</a></li>
+            <li><a href="#">Analisis Model</a></li>
+            <li><a href="#">Riwayat Klinis</a></li>
+            <li><a href="#">Pengaturan</a></li>
+        </ul>
+        <div class="user-profile">
+            <div class="user-avatar">KD</div>
+            <span>Dr. Klinis / Coass</span>
+        </div>
+    </nav>
 
-            <div class="canvas-container">
-                <canvas id="canvas"></canvas>
+    <!-- Main Content -->
+    <div class="dashboard-container">
+        
+        <!-- Top Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header"><span>Status Model TFLite</span> ⚡</div>
+                <div class="stat-value" id="model-status-text">Memuat...</div>
+                <span class="stat-badge badge-success">YOLOv8 Active</span>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header"><span>Total Objek Terdeteksi</span> 🔍</div>
+                <div class="stat-value" id="stat-total-detected">0</div>
+                <span class="stat-badge badge-success">Akurasi Threshold > 25%</span>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header"><span>Waktu Inferensi Real-time</span> ⏱️</div>
+                <div class="stat-value" id="stat-inference-time">0 ms</div>
+                <span class="stat-badge badge-success">Optimized WebAssembly</span>
             </div>
         </div>
+
+        <!-- Workspace Grid: Upload/Canvas & Realtime Metrics -->
+        <div class="workspace-grid">
+            
+            <!-- Left Panel: Input & Interactive Canvas Preview -->
+            <div class="card">
+                <div class="card-title">
+                    <span>Citra Masukan & Deteksi Bounding Box</span>
+                    <span id="status-text" style="font-size: 13px; color: var(--accent);">Siap</span>
+                </div>
+                
+                <div class="upload-zone">
+                    <div style="font-size: 15px; font-weight: 600; color: var(--primary); margin-bottom: 4px;">Seret file atau klik untuk unggah citra</div>
+                    <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Mendukung format JPG, PNG, atau Radiograf</div>
+                    <button class="btn-main">Pilih Berkas</button>
+                    <input type="file" id="imageLoader" accept="image/*" />
+                </div>
+
+                <div class="canvas-wrapper">
+                    <canvas id="canvas"></canvas>
+                </div>
+            </div>
+
+            <!-- Right Panel: Real-Time Model Processing & Stats -->
+            <div class="card">
+                <div class="card-title">Panel Telemetri Model Real-time</div>
+                <div class="process-logs">
+                    <div class="log-item">
+                        <span class="log-label">Arsitektur Model</span>
+                        <span class="log-value">YOLOv8 TFLite (FP32)</span>
+                    </div>
+                    <div class="log-item">
+                        <span class="log-label">Dimensi Input Tensor</span>
+                        <span class="log-value">[1, 3, 640, 640]</span>
+                    </div>
+                    <div class="log-item">
+                        <span class="log-label">Total Grid Kandidat (Anchors)</span>
+                        <span class="log-value">8,400 Kotak</span>
+                    </div>
+                    <div class="log-item">
+                        <span class="log-label">Threshold IoU (NMS)</span>
+                        <span class="log-value">0.45</span>
+                    </div>
+                    <div class="log-item">
+                        <span class="log-label">Confidence Threshold</span>
+                        <span class="log-value">> 0.25 (25%)</span>
+                    </div>
+                    <div class="log-item">
+                        <span class="log-label">Jenis Lesi Dominan Terdeteksi</span>
+                        <span class="log-value" id="log-dominant-lesion" style="color: var(--accent);">-</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 24px;">
+                    <div style="font-size: 15px; font-weight: 600; margin-bottom: 12px; color: var(--primary);">Kategori Kelas Dataset</div>
+                    <div style="font-size: 12px; color: var(--text-muted); line-height: 1.6;">
+                        Mencakup 10 kelas referensi klinis[cite: 1]: <i>Cheeck Biting, Coated Tongue, Ducktus, Karies, Linea Alba, Lingual Varicosites, Normal, Stain Calculus, Torus, Ulkus Traumaticus</i>[cite: 1].
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Bottom Panel: History Table -->
+        <div class="card">
+            <div class="card-title">
+                <span>Riwayat Analisis Sesi Ini</span>
+                <span style="font-size: 13px; color: var(--text-muted);">Penyimpanan Lokal Sesi Berjalan</span>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>WAKTU</th>
+                            <th>NAMA BERKAS CITRA</th>
+                            <th>JUMLAH LESI</th>
+                            <th>JENIS TEMUAN UTAMA</th>
+                            <th>STATUS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-table-body">
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 20px;">Belum ada data analisis pada sesi ini. Unggah citra untuk mulai.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
 
-    <!-- Modern Footer -->
-    <footer class="site-footer">
-        <div class="footer-grid">
-            <div class="footer-col">
-                <span class="footer-logo">RSGM Unjani</span>
-                <p>Sistem deteksi cerdas berbasis YOLO TFLite untuk identifikasi dan klasifikasi distribusi lesi secara digital.</p>
-            </div>
-            <div class="footer-col">
-                <h4>Informasi</h4>
-                <ul>
-                    <li><a href="#">Tentang Riset</a></li>
-                    <li><a href="#">Protokol Klinis</a></li>
-                    <li><a href="#">Pengujian Hipotesis</a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h4>Dukungan</h4>
-                <ul>
-                    <li><a href="#">Panduan Penggunaan</a></li>
-                    <li><a href="#">Hubungi Tim IT</a></li>
-                    <li><a href="#">Kebijakan Data</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; 2026 Departemen Kedokteran Gigi. Hak Cipta Dilindungi.</p>
-        </div>
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 RSGM Unjani — Sistem Pendukung Keputusan Klinis Berbasis Komputer Visi.</p>
     </footer>
 
-    <!-- Panggil script.js -->
     <script src="script.js"></script>
 </body>
 </html>
