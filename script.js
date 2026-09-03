@@ -1,8 +1,17 @@
 let model = null;
 
+// Daftar kelas disesuaikan langsung dengan dataset model (data.yaml)
 const classNames = [
-    "Kelas 0", "Kelas 1", "Kelas 2", "Kelas 3", "Kelas 4", 
-    "Kelas 5", "Kelas 6", "Kelas 7", "Kelas 8", "Kelas 9"
+    "CHEECK BITING",
+    "COATED TONGUE",
+    "DUCKTUS",
+    "KARIES",
+    "LINEA ALBA",
+    "LINGUAL VARICOSITES",
+    "NORMAL",
+    "STAIN CALCULUS",
+    "TORUS",
+    "ULKUS TRAUMATICUS"
 ];
 
 async function loadModel() {
@@ -64,7 +73,7 @@ imageLoader.addEventListener('change', (e) => {
                 let scores = [];
                 let classIds = [];
 
-                // AUTO-DETECT SKALA: Cek apakah koordinat X pada indeks 0 itu normalized (< 1.5) atau absolut
+                // AUTO-DETECT SKALA: Cek apakah koordinat X pada indeks 0 itu normalized (< 2.0) atau absolut
                 const isNormalized = outputData[0] <= 2.0 && outputData[numBoxes] <= 2.0;
 
                 for (let i = 0; i < numBoxes; i++) {
@@ -121,9 +130,9 @@ imageLoader.addEventListener('change', (e) => {
                         const boxWidth = xmax - xmin;
                         const boxHeight = ymax - ymin;
 
-                        // Pastikan konteks garis direset dan ditebalkan
+                        // Konfigurasi garis kotak pembatas
                         ctx.beginPath();
-                        ctx.strokeStyle = '#e76f51'; // Warna oranye aksen
+                        ctx.strokeStyle = '#e76f51'; 
                         ctx.lineWidth = Math.max(3, img.width / 200); 
                         ctx.strokeRect(xmin, ymin, boxWidth, boxHeight);
 
