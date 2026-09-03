@@ -2,19 +2,98 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Deteksi Lesi Mulut - TFLite</title>
-    <!-- Memuat TensorFlow.js -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Deteksi Lesi Mulut (YOLOv8)</title>
+    <!-- TensorFlow.js & TFLite -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-    <!-- Memuat TFLite Plugin untuk TensorFlow.js -->
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-tflite@0.0.1-alpha.8/dist/tf-tflite.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-tflite@0.0.1-alpha.9/dist/tf-tflite.min.js"></script>
+    <style>
+        :root {
+            --primary: #2b3a4a;
+            --accent: #e76f51;
+            --bg-color: #f4f7f6;
+            --text-dark: #333;
+            --text-light: #fff;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-dark); display: flex; flex-direction: column; min-height: 100vh; }
+        
+        /* Main Container */
+        .main-content { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; }
+        .card { background: var(--text-light); padding: 30px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.05); width: 100%; max-width: 800px; text-align: center; }
+        .card h2 { margin-bottom: 20px; color: var(--primary); font-weight: 600; }
+        
+        /* Upload Area */
+        .upload-btn-wrapper { position: relative; overflow: hidden; display: inline-block; margin-bottom: 20px; }
+        .btn-upload { border: none; background-color: var(--accent); color: white; padding: 12px 24px; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-upload:hover { background-color: #d65a3d; }
+        .upload-btn-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; }
+        
+        /* Canvas & Status */
+        #status-text { font-size: 15px; color: #666; margin-bottom: 20px; font-weight: 500; }
+        .canvas-container { position: relative; width: 100%; max-width: 640px; margin: 0 auto; border-radius: 8px; overflow: hidden; background: #eef2f5; }
+        canvas { display: block; width: 100%; height: auto; object-fit: contain; }
+
+        /* Modern Dark Footer */
+        .site-footer { background-color: #1e2327; color: #a0a5aa; padding: 60px 0 20px; font-size: 14px; }
+        .footer-grid { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; padding: 0 20px; border-bottom: 1px solid #333; padding-bottom: 40px; margin-bottom: 20px; }
+        .footer-col h4 { color: var(--text-light); margin-bottom: 15px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+        .footer-col ul { list-style: none; }
+        .footer-col ul li { margin-bottom: 10px; }
+        .footer-col ul li a { color: #a0a5aa; text-decoration: none; transition: 0.2s; }
+        .footer-col ul li a:hover { color: var(--accent); }
+        .footer-bottom { text-align: center; color: #777; }
+        .footer-logo { font-size: 24px; font-weight: bold; color: var(--text-light); margin-bottom: 15px; display: block; }
+    </style>
 </head>
 <body>
-    <h2>Uji Coba Deteksi Lesi (TFLite)</h2>
-    <input type="file" id="imageLoader" accept="image/*"><br><br>
-    <canvas id="canvas" style="max-width: 400px; display:block;"></canvas>
-    <p id="result">Menyiapkan sistem...</p>
 
-    <!-- Menghubungkan skrip logika -->
+    <div class="main-content">
+        <div class="card">
+            <h2>Analisis Citra Lesi Mulut</h2>
+            <p id="status-text">Sistem sedang disiapkan...</p>
+            
+            <div class="upload-btn-wrapper">
+                <button class="btn-upload">Unggah Radiograf / Foto</button>
+                <input type="file" id="imageLoader" accept="image/*" />
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="canvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modern Footer -->
+    <footer class="site-footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <span class="footer-logo">RSGM Unjani</span>
+                <p>Sistem deteksi cerdas berbasis YOLO TFLite untuk identifikasi dan klasifikasi distribusi lesi secara digital.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Informasi</h4>
+                <ul>
+                    <li><a href="#">Tentang Riset</a></li>
+                    <li><a href="#">Protokol Klinis</a></li>
+                    <li><a href="#">Pengujian Hipotesis</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Dukungan</h4>
+                <ul>
+                    <li><a href="#">Panduan Penggunaan</a></li>
+                    <li><a href="#">Hubungi Tim IT</a></li>
+                    <li><a href="#">Kebijakan Data</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Departemen Kedokteran Gigi. Hak Cipta Dilindungi.</p>
+        </div>
+    </footer>
+
+    <!-- Panggil script.js -->
     <script src="script.js"></script>
 </body>
 </html>
